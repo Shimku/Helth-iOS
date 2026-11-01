@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- The App Store's product page header (art.html?k=header, 3840 x 1646) and search result
+     artwork (art.html?k=search, 3840 x 2560). store/compose.sh renders both. Everything that
+     matters sits inside Apple's art safe area (from Apple's template); &guides=1 shows it.
+     &anim=1 makes it the video (header or search): frame(t) draws the moment t seconds into a
+     10-second loop, and store/tools/film.swift records it. -->
+<style>
+  :root { --bg: #15171b; --ink: #f4f2ee; --soft: #a7a49e; --green: #079a15; }
+  html, body { margin: 0; overflow: hidden; background: radial-gradient(ellipse 60% 70% at 50% 48%, #1c1f24, var(--bg)); }
+  body { position: relative; font-family: -apple-system, "SF Pro Display", "Helvetica Neue", sans-serif; -webkit-font-smoothing: antialiased; }
+  .header, .header body { width: 3840px; height: 1646px; }
+  .search, .search body { width: 3840px; height: 2560px; }
+  .safe { position: absolute; outline: 6px dashed #f0f; display: none; }
+  .guides .safe { display: block; }
+
+  h1 { margin: 0; color: var(--ink); font-weight: 700; line-height: 1.06; letter-spacing: -0.015em; }
+  p { margin: 0; color: var(--soft); line-height: 1.3; }
+  .text { position: absolute; }
+
+  /* A phone around an app screen; sizes are fractions of the phone's width. */
+  .phone { position: absolute; container-type: inline-size; }
+  .phone .body { padding: 0.65cqw; border-radius: 16.3cqw; background: linear-gradient(160deg, #4a4b4f, #232427 40%, #3b3c40); }
+  .phone .bezel { padding: 2.05cqw; border-radius: 15.6cqw; background: #000; }
+  .phone .screen { position: relative; border-radius: 13.6cqw; overflow: hidden; background: #fff; }
+  .phone img { display: block; width: 100%; }
+  .phone .screen::after { content: ""; position: absolute; top: 2.7cqw; left: 50%; width: 29.5cqw; height: 8.7cqw; transform: translateX(-50%); border-radius: 4.4cqw; background: #000; }
+
+  /* Header: the line in the middle (safe area 1646 x 661 at 1097, 493); the two phones
+     either side only show where the header is shown wide. */
+  .header .safe { left: 1097px; top: 493px; width: 1646px; height: 661px; }
+  .header .text { left: 1097px; width: 1646px; top: 0; height: 1646px; display: flex; flex-direction: column; justify-content: center; text-align: center; }
+  .header h1 { font-size: 140px; }
+  .header p { margin-top: 44px; font-size: 60px; }
+  .header .phone { width: 680px; top: 120px; }
+  .header .from { left: 290px; }
+  .header .to { left: 2870px; }
+
+  /* Search result: the line on the left, the two phones on the right, all inside the safe
+     area (2168 x 1030 at 836, 765). */
+  .search .safe { left: 836px; top: 765px; width: 2168px; height: 1030px; }
+  .search .text { left: 836px; width: 1060px; top: 765px; height: 1030px; display: flex; flex-direction: column; justify-content: center; }
+  .search h1 { font-size: 92px; }
+  .search p { margin-top: 36px; font-size: 48px; }
+  .search .phone { width: 470px; top: 805px; }
+  .search .from { left: 1960px; }
+  .search .to { left: 2534px; }
+  .tile { position: absolute; display: none; width: 124px; height: 124px; border-radius: 30px; background: var(--green);
+          box-shadow: 0 0 0 10px var(--bg); align-items: center; justify-content: center; }
+  .search .tile { display: flex; left: 2420px; top: 1218px; }
+
+  /* The videos (anim=1): the receiving phone goes Waiting, then the plan, then Done. In the
+     header the line sits lower, so the file can fly across above it inside the safe area. */
+  .anim.header .text { top: 120px; }
+  .phone .screen::after { z-index: 2; }
+  .layer, .tap, .chip { display: none; }
+  .anim .layer { display: block; position: absolute; left: 0; top: 0; width: 100%; }
+  .anim .tap { display: block; position: absolute; width: 12cqw; height: 12cqw; margin: -6cqw 0 0 -6cqw; border-radius: 50%;
+               background: rgba(60, 60, 67, 0.32); z-index: 3; opacity: 0; }
+  .anim .chip { display: block; position: absolute; left: 0; top: 0; width: 120px; height: 150px; margin: -75px 0 0 -60px;
+                border-radius: 14px 40px 14px 14px; background: #fff; box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45); opacity: 0; }
+  .chip img { position: absolute; left: 24px; top: 46px; width: 72px; height: 72px; border-radius: 16px; }
+</style>
+</head>
+<body>
+<div class="text">
+  <h1>Moves your Health data.<br>Collects none of it.</h1>
+  <p>Straight from one iPhone to the other by AirDrop.</p>
+</div>
+<div class="phone from"><div class="body"><div class="bezel"><div class="screen"><img src="raw/send-done.png" alt="">
+  <div class="tap" id="tapSend" style="left: 50%; top: 33.9%"></div></div></div></div></div>
+<div class="phone to"><div class="body"><div class="bezel"><div class="screen"><img src="raw/receive-done.png" alt="">
+  <img class="layer" id="plan" src="raw/receive-plan.png" alt=""><img class="layer" id="wait" src="raw/receive-waiting.png" alt="">
+  <div class="tap" id="tapCopy" style="left: 50%; top: 37.2%"></div></div></div></div></div>
+<div class="chip" id="chip"><img src="icon-source.jpg" alt=""></div>
+<div class="tile"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h15M13 6l6 6-6 6"/></svg></div>
+<div class="safe"></div>
+<script>
+  const q = new URLSearchParams(location.search);
+  document.documentElement.className = (q.get("k") || "header") + (q.has("guides") ? " guides" : "") + (q.has("anim") ? " anim" : "");
+
+  // The videos. Times are in seconds; t = 10 looks the same as t = 0, so they loop.
+  const header = (q.get("k") || "header") === "header";
+  const ease = x => x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x);
+  const ramp = (t, a, b) => ease((t - a) / (b - a));
+  const bump = (t, a, b) => Math.sin(Math.PI * Math.min(1, Math.max(0, (t - a) / (b - a))));
+  const el = id => document.getElementById(id);
+  // A finger tap: a grey dot that grows a little and fades, over 0.45 s from `at`.
+  function tap(dot, t, at) {
+    const k = Math.min(1, Math.max(0, (t - at) / 0.45));
+    dot.style.opacity = Math.min(1, 1.4 * Math.sin(Math.PI * k));
+    dot.style.transform = `scale(${0.7 + 0.3 * ease(k * 2)})`;
+  }
+  window.frame = t => {
+    t = ((t % 10) + 10) % 10;
+    // Receiving phone: Waiting until the file lands, then the plan, then Done, then back.
+    el("wait").style.opacity = 1 - ramp(t, 3.0, 3.5) + ramp(t, 9.2, 9.8);
+    el("plan").style.opacity = t < 9 ? 1 - ramp(t, 5.2, 5.7) : 0;
+    tap(el("tapSend"), t, 0.6);
+    tap(el("tapCopy"), t, 4.6);
+    // The file: from Send on the first phone onto the second, over the arrow in search and
+    // above the line in the header. Points are the Send button, a curve control, the target.
+    const path = header ? { p0: [630, 612], p1: [1920, 640], p2: [3210, 488], size: 1.3 }
+                        : { p0: [2195, 1145], p1: [2482, 860], p2: [2769, 1060], size: 1 };
+    const { p0, p1, p2 } = path;
+    const k = ease((t - 1.2) / 1.7), u = 1 - k;
+    const x = u * u * p0[0] + 2 * u * k * p1[0] + k * k * p2[0], y = u * u * p0[1] + 2 * u * k * p1[1] + k * k * p2[1];
+    el("chip").style.opacity = ramp(t, 1.2, 1.4) * (1 - ramp(t, 2.65, 2.95));
+    el("chip").style.transform = `translate(${x}px, ${y}px) scale(${path.size * (0.6 + 0.4 * bump(t, 1.2, 2.95))})`;
+    document.querySelector(".tile").style.transform = `scale(${1 + 0.12 * bump(t, 1.75, 2.35)})`;
+    return t;
+  };
+  if (q.has("anim")) frame(+(q.get("t") || 0));
+</script>
+</body>
+</html>
