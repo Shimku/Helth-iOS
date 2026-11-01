@@ -3,3 +3,9 @@ xcuserdata/
 DerivedData/
 build/
 *.healthcopy
+
+# Made by store/compose.sh
+store/screenshots/
+store/screenshots-duo/
+store/header.*
+store/search.*

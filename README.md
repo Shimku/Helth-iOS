@@ -23,9 +23,10 @@ already there to the second (the export has no sub-second times, six-digit value
 - `scripts/appleexport` converts an export on the Mac with the app's own code;
   `scripts/gen/enums.py` regenerates `AppleNames.swift` from the SDK's HealthKit headers.
 - `scripts/upload.sh <build>` archives and uploads to App Store Connect for TestFlight.
-- `store/` has the App Store listing (`listing.md`), the screenshots (iPhone and iPhone Duo) and
-  the header and search art and videos: `store/capture.sh` takes the raw screens from the
-  simulators, `store/compose.sh` renders the rest. The website is its own repo.
+- `store/` has the App Store listing (`listing.md`) and what the store art is made from:
+  `store/capture.sh` takes the raw screens from the simulators, and `store/compose.sh` renders the
+  screenshots (iPhone and iPhone Duo), the header and search art and their videos (not in git).
+  The website is its own repo.
 
 What can't be copied is Apple's rule, not this app's: apps can't write Exercise, Stand or Move
 minutes, heart rhythm notifications, walking steadiness or asymmetry, wrist temperature, AFib
